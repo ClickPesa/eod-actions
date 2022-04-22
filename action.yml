@@ -9,13 +9,13 @@ inputs:
   SLACK_WEBHOOK_URL:
     description: 'Slack webhook'
     required: true
-  SLACK_WEBHOOK_REVIEW_URL:
-    description: 'Slack webhook'
-    required: true
+  # SLACK_WEBHOOK_REVIEW_URL:
+  #   description: 'Slack webhook'
+  #   required: true
 
 runs:
   using: 'node16'
-  main: './src/develop_actions.js'
+  main: './src/staging_actions.js'
 
 branding:
   icon: 'package'
