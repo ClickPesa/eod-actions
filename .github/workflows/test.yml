@@ -18,17 +18,9 @@ jobs:
         run: npm install
 
       - name: Automatically create pr to staging
-        uses: bmsteven/create_pr@1.0.3
+        uses: bmsteven/create_pr@v1.0.3
         with: 
           GITHUB_TOKEN: ${{secrets.TOKEN}}
           SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
-          # SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
+          SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
           DESTINATION_BRANCH: staging
-
-      # - name: install packages
-      # - uses: ./
-      #   with:
-      #     GITHUB_TOKEN: ${{secrets.TOKEN}}
-      #     SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
-      #     # SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
-      #     DESTINATION_BRANCH: staging
