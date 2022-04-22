@@ -28,7 +28,7 @@ jobs:
           # SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
           DESTINATION_BRANCH: staging
 
-      - name: install packages
+      # - name: install packages
       # - uses: ./
       #   with:
       #     GITHUB_TOKEN: ${{secrets.TOKEN}}
