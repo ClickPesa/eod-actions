@@ -15,7 +15,7 @@ inputs:
 
 runs:
   using: 'node16'
-  main: './src/develop_actions.js'
+  main: './src/staging_actions.js'
 
 branding:
   icon: 'package'
