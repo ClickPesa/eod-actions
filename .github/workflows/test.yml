@@ -12,6 +12,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Build
@@ -19,9 +22,9 @@ jobs:
 
       - name: Automatically create pr to staging
         run: npm install -g gulp axios @octokit/core @actions/github @actions/core
-      - uses: bmsteven/create_pr@v1.0.3
+        uses: bmsteven/create_pr@v1.0.3
         with: 
           GITHUB_TOKEN: ${{secrets.TOKEN}}
           SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
-          SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
+          # SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
           DESTINATION_BRANCH: staging
