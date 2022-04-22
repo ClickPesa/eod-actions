@@ -1,9 +1,13 @@
 name: on merging to develop
 
+# on:
+#    schedule:
+#      - cron: '30 5 * * 1,3'
+#      - cron: '30 5 * * 2,4'
+
 on:
-   schedule:
-     - cron: '30 5 * * 1,3'
-     - cron: '30 5 * * 2,4'
+   push:
+     branches: [ develop ]
 
 jobs:
   build:
@@ -15,9 +19,19 @@ jobs:
 
       - name: install packages
         run: npm install -g axios @octokit/core @actions/github @actions/core
-      - uses: ./
-        with:
+
+      - name: Automatically create pr to staging
+        uses: bmsteven/create_pr@release
+        with: 
           GITHUB_TOKEN: ${{secrets.TOKEN}}
           SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
           # SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
           DESTINATION_BRANCH: staging
+
+      - name: install packages
+      # - uses: ./
+      #   with:
+      #     GITHUB_TOKEN: ${{secrets.TOKEN}}
+      #     SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+      #     # SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
+      #     DESTINATION_BRANCH: staging
