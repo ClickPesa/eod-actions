@@ -1,0 +1,24 @@
+{
+  "name": "eod-actions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bmsteven/eod-actions.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bmsteven/eod-actions/issues"
+  },
+  "homepage": "https://github.com/bmsteven/eod-actions#readme",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.1",
+    "@octokit/core": "^3.6.0"
+  }
+}
