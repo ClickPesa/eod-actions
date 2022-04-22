@@ -21,7 +21,7 @@ jobs:
         run: npm install -g axios @octokit/core @actions/github @actions/core
 
       - name: Automatically create pr to staging
-        uses: bmsteven/create_pr@v1.0.3
+        uses: bmsteven/create_pr
         with: 
           GITHUB_TOKEN: ${{secrets.TOKEN}}
           SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
