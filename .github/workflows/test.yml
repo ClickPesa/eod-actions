@@ -18,10 +18,9 @@ jobs:
         run: npm install
 
       - name: Automatically create pr to staging
-        run: npm install -g axios @octokit/core @actions/github @actions/core
-      - uses: bmsteven/create_pr@1.0.5
+        uses: bmsteven/create_pr@1.0.5
         with: 
           GITHUB_TOKEN: ${{secrets.TOKEN}}
           SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
-          # SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
+          SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
           DESTINATION_BRANCH: staging
