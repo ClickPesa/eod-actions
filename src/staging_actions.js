@@ -1,7 +1,4 @@
 const axios = require("axios");
-const pull = "";
-
-// const gulp = require("gulp");
 // const axios = require("axios");
 // const { Octokit } = require("@octokit/core");
 
