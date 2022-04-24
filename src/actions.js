@@ -27,8 +27,7 @@ const run = async () => {
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
-        console.log(pull_number, description, createdAt, branch);
-        const commits = await octokit.request(
+        const pull_commits = await octokit.request(
           `GET /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/commits`,
           {
             owner: context.payload?.repository?.owner?.login,
@@ -36,7 +35,116 @@ const run = async () => {
             pull_number,
           }
         );
+        let commits = "";
+        pull_commits?.data?.commits?.forEach((e, i) => {
+          if (
+            !e?.commit?.message.includes("Merge") &&
+            !e?.commit?.message.includes("Merged") &&
+            !e?.commit?.message.includes("skip") &&
+            !e?.commit?.message.includes("Skip")
+          )
+            commits =
+              i === 0
+                ? "> " + e.commit.message
+                : commits + "\n\n" + "> " + e.commit.message;
+        });
         console.log(commits);
+        // merge pr
+        const mergepr = await octokit.request(
+          `PUT /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/merge`,
+          {
+            owner: context.payload?.repository?.owner?.login,
+            repo: context.payload?.repository?.name,
+            pull_number,
+          }
+        );
+        if (mergepr?.data) {
+          // create/update PR to master
+          const createpr = await createorupdatepr({branch, body: description, owner: context.payload?.repository?.owner?.login, repo: context.payload?.repository?.name, full_name: context.payload?.repository?.full_name})
+          if(createpr.data){
+            // send slack review Notification
+          // create pr to master
+          
+          let newDate = new Date();
+          newDate.setTime(new Date(createdAt).getTime());
+          let dateString = newDate.toDateString();
+          let timeString = newDate.toLocaleTimeString();
+          const options = {
+            blocks: [
+              {
+                type: "header",
+                text: {
+                  type: "plain_text",
+                  text: ":sparkles:  New notification sent from github actions",
+                  emoji: true,
+                },
+              },
+              {
+                type: "context",
+                elements: [
+                  {
+                    text: `<@null> <@null> <@null>  |  *engineering blog*  |  *${
+                      dateString + " " + timeString
+                    }}* `,
+                    type: "mrkdwn",
+                  },
+                ],
+              },
+              {
+                type: "divider",
+              },
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}>*`,
+                },
+              },
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: commits,
+                },
+              },
+              {
+                type: "actions",
+                elements: [
+                  {
+                    type: "button",
+                    text: {
+                      type: "plain_text",
+                      emoji: true,
+                      text: "Review Changes",
+                    },
+                    style: "primary",
+                    url: "https://staging--getpaidafrica.netlify.app/",
+                  },
+                  {
+                    type: "button",
+                    text: {
+                      type: "plain_text",
+                      emoji: true,
+                      text: "View Pull Request",
+                    },
+                    url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}`,
+                  },
+                ],
+              },
+            ],
+          };
+
+          axios
+            .post(SLACK_WEBHOOK_REVIEW_URL, JSON.stringify(options))
+            .then((response) => {
+              console.log("SUCCEEDED: Sent slack webhook", response.data);
+            })
+            .catch((error) => {
+              console.log("FAILED: Send slack webhook", error);
+            });
+          return;
+          }
+        }
       });
     } else {
       console.log("There are no pull requests to review");
@@ -46,7 +154,7 @@ const run = async () => {
             type: "header",
             text: {
               type: "plain_text",
-              text: "❌  New notification sent from github actions",
+              text: "New notification sent from github actions",
               emoji: true,
             },
           },
@@ -55,7 +163,7 @@ const run = async () => {
             elements: [
               {
                 type: "mrkdwn",
-                text: `> There are no pull requests to review`,
+                text: `❌ There are no pull requests to review`,
               },
             ],
           },
@@ -78,80 +186,23 @@ const run = async () => {
 
 run();
 
-// gulp.task("createnotification", async () => {
-//   const options = {
-//     blocks: [
-//       {
-//         type: "header",
-//         text: {
-//           type: "plain_text",
-//           text: ":sparkles:  New notification sent via github actions",
-//           emoji: true,
-//         },
-//       },
-//       {
-//         type: "context",
-//         elements: [
-//           {
-//             text: `<@null> <@null> <@null>  |  *engineering blog*  |  *null}* `,
-//             type: "mrkdwn",
-//           },
-//         ],
-//       },
-//       {
-//         type: "divider",
-//       },
-//       {
-//         type: "section",
-//         text: {
-//           type: "mrkdwn",
-//           text: `*<https://github.com/clickpesa/engineering-blog/pulls>*`,
-//         },
-//       },
-//       {
-//         type: "section",
-//         text: {
-//           type: "mrkdwn",
-//           text: `sample from from github`,
-//         },
-//       },
-//       {
-//         type: "actions",
-//         elements: [
-//           {
-//             type: "button",
-//             text: {
-//               type: "plain_text",
-//               emoji: true,
-//               text: "Review Changes",
-//             },
-//             style: "primary",
-//             url: "https://staging--getpaidafrica.netlify.app//",
-//           },
-//           {
-//             type: "button",
-//             text: {
-//               type: "plain_text",
-//               emoji: true,
-//               text: "View Pull Request",
-//             },
-//             url: `https://github.com/clickpesa/engineering-blog/pulls`,
-//           },
-//         ],
-//       },
-//     ],
-//   };
-//   axios
-//     .post(`${process.argv[4]}`, JSON.stringify(options))
-//     .then((response) => {
-//       console.log("SUCCEEDED: Sent slack webhook", response.data);
-//       resolve(response.data);
-//     })
-//     .catch((error) => {
-//       console.log("FAILED: Send slack webhook", error);
-//       reject(new Error("FAILED: Send slack webhook"));
-//     });
-// });
+const createorupdatepr = ({branch, owner, repo, body, full_name}) => {
+  // attempt creating pr
+  try {
+    const existing_pr = await octokit.rest.pulls.list({
+      owner,
+      repo,
+      state: "open",
+      head: branch,
+      base: DESTINATION_BRANCH,
+    });
+    console.log(existing_pr?.data);
+  } catch (error) {
+    console.log(error.message);
+
+  }
+
+}
 
 // gulp.task("getpulls", async () => {
 //   try {
