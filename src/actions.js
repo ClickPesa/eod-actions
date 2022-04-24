@@ -226,6 +226,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       return updatepr;
     }
   } catch (error) {
+    console.log(error.message);
     let options = {
       blocks: [
         {
