@@ -60,89 +60,95 @@ const run = async () => {
         );
         if (mergepr?.data) {
           // create/update PR to master
-          const createpr = await createorupdatepr({branch, body: description, owner: context.payload?.repository?.owner?.login, repo: context.payload?.repository?.name, full_name: context.payload?.repository?.full_name})
-          if(createpr.data){
+          const createpr = await createorupdatepr({
+            branch,
+            body: description,
+            owner: context.payload?.repository?.owner?.login,
+            repo: context.payload?.repository?.name,
+            full_name: context.payload?.repository?.full_name,
+          });
+          if (createpr.data) {
             // send slack review Notification
-          // create pr to master
-          
-          let newDate = new Date();
-          newDate.setTime(new Date(createdAt).getTime());
-          let dateString = newDate.toDateString();
-          let timeString = newDate.toLocaleTimeString();
-          const options = {
-            blocks: [
-              {
-                type: "header",
-                text: {
-                  type: "plain_text",
-                  text: ":sparkles:  New notification sent from github actions",
-                  emoji: true,
-                },
-              },
-              {
-                type: "context",
-                elements: [
-                  {
-                    text: `<@null> <@null> <@null>  |  *engineering blog*  |  *${
-                      dateString + " " + timeString
-                    }}* `,
-                    type: "mrkdwn",
-                  },
-                ],
-              },
-              {
-                type: "divider",
-              },
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}>*`,
-                },
-              },
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: commits,
-                },
-              },
-              {
-                type: "actions",
-                elements: [
-                  {
-                    type: "button",
-                    text: {
-                      type: "plain_text",
-                      emoji: true,
-                      text: "Review Changes",
-                    },
-                    style: "primary",
-                    url: "https://staging--getpaidafrica.netlify.app/",
-                  },
-                  {
-                    type: "button",
-                    text: {
-                      type: "plain_text",
-                      emoji: true,
-                      text: "View Pull Request",
-                    },
-                    url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}`,
-                  },
-                ],
-              },
-            ],
-          };
+            // create pr to master
 
-          axios
-            .post(SLACK_WEBHOOK_REVIEW_URL, JSON.stringify(options))
-            .then((response) => {
-              console.log("SUCCEEDED: Sent slack webhook", response.data);
-            })
-            .catch((error) => {
-              console.log("FAILED: Send slack webhook", error);
-            });
-          return;
+            let newDate = new Date();
+            newDate.setTime(new Date(createdAt).getTime());
+            let dateString = newDate.toDateString();
+            let timeString = newDate.toLocaleTimeString();
+            const options = {
+              blocks: [
+                {
+                  type: "header",
+                  text: {
+                    type: "plain_text",
+                    text: ":sparkles:  New notification sent from github actions",
+                    emoji: true,
+                  },
+                },
+                {
+                  type: "context",
+                  elements: [
+                    {
+                      text: `<@null> <@null> <@null>  |  *engineering blog*  |  *${
+                        dateString + " " + timeString
+                      }}* `,
+                      type: "mrkdwn",
+                    },
+                  ],
+                },
+                {
+                  type: "divider",
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}>*`,
+                  },
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: commits,
+                  },
+                },
+                {
+                  type: "actions",
+                  elements: [
+                    {
+                      type: "button",
+                      text: {
+                        type: "plain_text",
+                        emoji: true,
+                        text: "Review Changes",
+                      },
+                      style: "primary",
+                      url: "https://staging--getpaidafrica.netlify.app/",
+                    },
+                    {
+                      type: "button",
+                      text: {
+                        type: "plain_text",
+                        emoji: true,
+                        text: "View Pull Request",
+                      },
+                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}`,
+                    },
+                  ],
+                },
+              ],
+            };
+
+            axios
+              .post(SLACK_WEBHOOK_REVIEW_URL, JSON.stringify(options))
+              .then((response) => {
+                console.log("SUCCEEDED: Sent slack webhook", response.data);
+              })
+              .catch((error) => {
+                console.log("FAILED: Send slack webhook", error);
+              });
+            return;
           }
         }
       });
@@ -186,7 +192,7 @@ const run = async () => {
 
 run();
 
-const createorupdatepr = ({branch, owner, repo, body, full_name}) => {
+const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
   // attempt creating pr
   try {
     const existing_pr = await octokit.rest.pulls.list({
@@ -199,10 +205,8 @@ const createorupdatepr = ({branch, owner, repo, body, full_name}) => {
     console.log(existing_pr?.data);
   } catch (error) {
     console.log(error.message);
-
   }
-
-}
+};
 
 // gulp.task("getpulls", async () => {
 //   try {
