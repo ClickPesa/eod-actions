@@ -67,7 +67,7 @@ const run = async () => {
             repo: context.payload?.repository?.name,
             full_name: context.payload?.repository?.full_name,
           });
-          if (createpr.data) {
+          if (createpr?.data) {
             // send slack review Notification
             // create pr to master
 
