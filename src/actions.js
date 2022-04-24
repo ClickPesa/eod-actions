@@ -22,7 +22,7 @@ const run = async () => {
       }
     );
     if (pulls?.data?.length > 0) {
-      pulls?.data.forEach((pull) => {
+      pulls?.data.forEach(async (pull) => {
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
@@ -191,7 +191,6 @@ run();
 //     console.log(error?.message);
 //   }
 // });
-
 
 // // name: NodeJS with Gulp
 
