@@ -9,6 +9,8 @@ const DESTINATION_BRANCH = core.getInput("DESTINATION_BRANCH");
 const SLACK_WEBHOOK_REVIEW_URL = core.getInput("SLACK_WEBHOOK_REVIEW_URL");
 const TEAM_LEAD_ID = core.getInput("TEAM_LEAD_ID");
 const TECH_LEAD_ID = core.getInput("TECH_LEAD_ID");
+const REPO_OWNER = core.getInput("REPO_OWNER");
+const REPO_NAME = core.getInput("REPO_NAME");
 const octokit = github.getOctokit(GITHUB_TOKEN);
 const { context = {} } = github;
 
@@ -17,10 +19,10 @@ const run = async () => {
     console.log("target branch", TARGET_BRANCH);
     console.log("context", context);
     const pulls = await octokit.request(
-      `GET /repos/${context.payload?.repository?.full_name}/pulls`,
+      `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls`,
       {
-        owner: context.payload?.repository?.owner?.login,
-        repo: context.payload?.repository?.name,
+        owner: REPO_OWNER,
+        repo: REPO_NAME,
         base: TARGET_BRANCH,
         state: "opened",
       }
@@ -33,10 +35,10 @@ const run = async () => {
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
         const pull_commits = await octokit.request(
-          `GET /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/commits`,
+          `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
-            owner: context.payload?.repository?.owner?.login,
-            repo: context.payload?.repository?.name,
+            owner: REPO_OWNER,
+            repo: REPO_NAME,
             pull_number,
           }
         );
@@ -55,10 +57,10 @@ const run = async () => {
         });
         // merge pr
         const mergepr = await octokit.request(
-          `PUT /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/merge`,
+          `PUT /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/merge`,
           {
-            owner: context.payload?.repository?.owner?.login,
-            repo: context.payload?.repository?.name,
+            owner: REPO_OWNER,
+            repo: REPO_NAME,
             pull_number,
           }
         );
@@ -67,9 +69,9 @@ const run = async () => {
           const createpr = await createorupdatepr({
             branch,
             body: description,
-            owner: context.payload?.repository?.owner?.login,
-            repo: context.payload?.repository?.name,
-            full_name: context.payload?.repository?.full_name,
+            owner: REPO_OWNER,
+            repo: REPO_NAME,
+            full_name: `${REPO_OWNER}/${REPO_NAME}`,
           });
           if (createpr?.data) {
             let newDate = new Date();
@@ -104,7 +106,7 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
+                    text: `*<https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
                   },
                 },
                 {
@@ -134,7 +136,7 @@ const run = async () => {
                         emoji: true,
                         text: "View Pull Request",
                       },
-                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number}`,
+                      url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number}`,
                     },
                   ],
                 },
