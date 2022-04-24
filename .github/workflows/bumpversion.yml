@@ -2,7 +2,7 @@ name: on pr to default branch
 
 on:
    push:
-     branches: [ main ]
+     branches: [ master ]
 
 jobs:
   build:
