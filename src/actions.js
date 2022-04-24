@@ -7,6 +7,8 @@ const SLACK_WEBHOOK_URL = core.getInput("SLACK_WEBHOOK_URL");
 const TARGET_BRANCH = core.getInput("TARGET_BRANCH");
 const DESTINATION_BRANCH = core.getInput("DESTINATION_BRANCH");
 const SLACK_WEBHOOK_REVIEW_URL = core.getInput("SLACK_WEBHOOK_REVIEW_URL");
+const TEAM_LEAD_ID = core.getInput("TEAM_LEAD_ID");
+const TECH_LEAD_ID = core.getInput("TECH_LEAD_ID");
 const octokit = github.getOctokit(GITHUB_TOKEN);
 const { context = {} } = github;
 
@@ -85,7 +87,7 @@ const run = async () => {
                   type: "context",
                   elements: [
                     {
-                      text: `<@null> <@null> <@null>  |  *engineering blog*  |  *${
+                      text: `<@${TEAM_LEAD_ID}> <@${TECH_LEAD_ID}> <@${TEAM_LEAD_ID}>  |  *engineering blog*  |  *${
                         dateString + " " + timeString
                       }* `,
                       type: "mrkdwn",
@@ -254,79 +256,3 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       });
   }
 };
-
-// gulp.task("getpulls", async () => {
-//   try {
-//     const octokit = new Octokit({ auth: process.argv[4] });
-//     console.log("pulls", pulls?.data);
-
-//     const pull = await octokit.request("GET /repos/bmsteven/demo/pulls/18", {
-//       owner: "bmsteven",
-//       repo: "demo",
-//       pull_number: "18",
-//     });
-//     console.log("pull", pull?.data);
-//     // update pull request
-//     // get pull request commits
-//     // check if pull request was merged
-//     const checkPulls = await octokit.request(
-//       "GET /repos/bmsteven/demo/pulls/18/merge",
-//       {
-//         owner: "bmsteven",
-//         repo: "demo",
-//         pull_number: "18",
-//       }
-//     );
-//     console.log("checkPulls", checkPulls?.data);
-//     // merge pull request
-//     const mergepr = await octokit.request(
-//       "PUT /repos/bmsteven/demo/pulls/16/merge",
-//       {
-//         owner: "bmsteven",
-//         repo: "demo",
-//         pull_number: "18",
-//       }
-//     );
-//     console.log("mergepr", mergepr?.data);
-//     // create new pull request
-//   } catch (error) {
-//     console.log(error?.message);
-//   }
-// });
-
-// // name: NodeJS with Gulp
-
-// // on:
-// //   push:
-// //     branches: [ develop ]
-// //     paths: ["gulpfile.js"]
-// //   pull_request:
-// //     branches: [ develop ]
-// //     paths: ["gulpfile.js"]
-
-// // jobs:
-// //   build:
-// //     runs-on: ubuntu-latest
-
-// //     strategy:
-// //       fail-fast: false
-// //       matrix:
-// //         node-version: [12.x, 14.x, 16.x]
-
-// //     steps:
-// //     - uses: actions/checkout@v3
-
-// //     - name: Use Node.js ${{ matrix.node-version }}
-// //       uses: actions/setup-node@v3
-// //       with:
-// //         node-version: ${{ matrix.node-version }}
-
-// //     - name: Build
-// //       run: npm install
-
-// //     - name: gulp
-// //       run: npm install -g gulp axios @octokit/core
-
-// //     - name: notify
-// //       # run: gulp createnotification --b ${{ secrets.SLACK_WEBHOOK_URL }}
-// //       run: gulp getpulls --b ${{ secrets.TOKEN }}
