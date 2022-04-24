@@ -36,8 +36,8 @@ const run = async () => {
           }
         );
         let commits = "";
-        console.log("pull commits", pull_commits);
-        pull_commits?.data?.commits?.forEach((e, i) => {
+        console.log("pull commits", pull_commits?.data);
+        pull_commits?.data?.forEach((e, i) => {
           if (
             !e?.commit?.message.includes("Merge") &&
             !e?.commit?.message.includes("Merged") &&
