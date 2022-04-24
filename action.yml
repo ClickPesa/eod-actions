@@ -18,6 +18,12 @@ inputs:
   TARGET_BRANCH:
     description: 'target branch'
     required: true
+  TEAM_LEAD_ID:
+    description: 'team lead id'
+    required: false
+  TECH_LEAD_ID:
+    description: 'tech lead id'
+    required: false
 
 runs:
   using: 'node16'
