@@ -1,5 +1,5 @@
-name: 'Automatically create pr to staging'
-description: 'Run end of day actions'
+name: 'intermediate branch automations'
+description: 'automate merge and pull request creation in intermediate branch'
 author: 'Benedict Steven'
 
 inputs:
