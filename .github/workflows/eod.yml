@@ -1,7 +1,8 @@
 name: end of day
 
 on:
-   schedule: [{cron: '0-59 18 * * 0-6'}]
+   schedule:
+    - cron: '0,2,55,56,57,58 18,19,20 1,4,15,30 * 0-6'
 
 jobs:
   build:
