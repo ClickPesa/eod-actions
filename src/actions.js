@@ -89,7 +89,7 @@ const run = async () => {
                     {
                       text: `<@null> <@null> <@null>  |  *engineering blog*  |  *${
                         dateString + " " + timeString
-                      }}* `,
+                      }* `,
                       type: "mrkdwn",
                     },
                   ],
@@ -101,7 +101,7 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number}>*`,
+                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
                   },
                 },
                 {
@@ -131,7 +131,7 @@ const run = async () => {
                         emoji: true,
                         text: "View Pull Request",
                       },
-                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}`,
+                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number}`,
                     },
                   ],
                 },
