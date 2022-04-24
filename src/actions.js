@@ -16,7 +16,6 @@ const { context = {} } = github;
 
 const run = async () => {
   try {
-    console.log("context", context);
     const pulls = await octokit.request(
       `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls`,
       {
