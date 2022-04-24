@@ -1,8 +1,7 @@
-name: on pr to staging
+name: eod
 
 on:
-   schedule:
-     - cron: '10-30 18 * * 0-6'
+   schedule: [{cron: '10-30 18 * * 0-6'}]
 
 jobs:
   build:
