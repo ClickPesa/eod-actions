@@ -24,6 +24,12 @@ inputs:
   TECH_LEAD_ID:
     description: 'tech lead id'
     required: false
+  REPO_OWNER:
+    description: 'repository owner'
+    required: true
+  REPO_NAME:
+    description: "repository name"
+    required: true
 
 runs:
   using: 'node16'
