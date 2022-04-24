@@ -1,13 +1,12 @@
 name: on pr to staging
 
-# on:
-#    schedule:
-    #  - cron: '15 10 * * 0-6'
-    #  - cron: '10 10 * * 2,4'
-
 on:
-   pull_request:
-     branches: [ staging ]
+   schedule:
+     - cron: '5 18 * * 0-6'
+
+# on:
+#    pull_request:
+#      branches: [ staging ]
 
 jobs:
   build:
@@ -28,3 +27,5 @@ jobs:
           SLACK_WEBHOOK_REVIEW_URL: ${{secrets.SLACK_WEBHOOK_REVIEW_URL}}
           TARGET_BRANCH: staging
           DESTINATION_BRANCH: master
+          TEAM_LEAD_ID: ${{secrets.TEAM_LEAD_ID}}
+          TECH_LEAD_ID: ${{secrets.TECH_LEAD_ID}}
