@@ -102,14 +102,14 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.pull_number}>*`,
+                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number}>*`,
                   },
                 },
                 {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `${commits}`,
+                    text: `> test commit`,
                   },
                 },
                 {
