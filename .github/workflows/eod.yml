@@ -1,19 +1,20 @@
 name: on pr to staging
 
-# on:
-#    schedule:
-    #  - cron: '15 10 * * 0-6'
-    #  - cron: '10 10 * * 2,4'
-
 on:
-   pull_request:
-     branches: [ staging ]
+   schedule:
+     - cron: '0 18 * * 0-6'
+
+# on:
+#    pull_request:
+#      branches: [ staging ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: staging
       - name: Build
         run: npm install
 
