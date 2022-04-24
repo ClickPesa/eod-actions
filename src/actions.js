@@ -68,8 +68,7 @@ const run = async () => {
             full_name: context.payload?.repository?.full_name,
           });
           if (createpr?.data) {
-            // send slack review Notification
-            // create pr to master
+            console.log(createpr?.data);
 
             let newDate = new Date();
             newDate.setTime(new Date(createdAt).getTime());
@@ -110,7 +109,7 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: commits,
+                    text: `${commits}`,
                   },
                 },
                 {
