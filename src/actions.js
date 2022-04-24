@@ -14,7 +14,7 @@ const { context = {} } = github;
 
 const run = async () => {
   try {
-    console.log(TARGET_BRANCH);
+    console.log("target branch", TARGET_BRANCH);
     const pulls = await octokit.request(
       `GET /repos/${context.payload?.repository?.full_name}/pulls`,
       {
