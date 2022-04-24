@@ -36,6 +36,7 @@ const run = async () => {
           }
         );
         let commits = "";
+        console.log("pull commits", pull_commits);
         pull_commits?.data?.commits?.forEach((e, i) => {
           if (
             !e?.commit?.message.includes("Merge") &&
@@ -48,7 +49,7 @@ const run = async () => {
                 ? "> " + e.commit.message
                 : commits + "\n\n" + "> " + e.commit.message;
         });
-        console.log(commits);
+        console.log("commits", commits);
         // merge pr
         const mergepr = await octokit.request(
           `PUT /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/merge`,
@@ -78,7 +79,7 @@ const run = async () => {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: ":sparkles:  New notification sent from github actions",
+                    text: ":sparkles:  New post from engineering blog that requires review",
                     emoji: true,
                   },
                 },
@@ -107,7 +108,7 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `> test commit`,
+                    text: `${commits}`,
                   },
                 },
                 {
@@ -197,6 +198,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       head: branch,
       base: DESTINATION_BRANCH,
     });
+    console.log("existing pr", existing_pr?.data);
     if (existing_pr?.data?.length === 0) {
       // create new pr
       const createpr = await octokit.request(`POST /repos/${full_name}/pulls`, {
@@ -207,10 +209,12 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         head: branch,
         base: DESTINATION_BRANCH,
       });
+      console.log("create pr", createpr?.data);
       return createpr;
     } else {
       // update existing pr
-      const update_pr = await octokit.rest.pulls.update({
+      console.log("there");
+      const updatepr = await octokit.rest.pulls.update({
         pull_number: existing_pr?.data[0].number,
         owner,
         repo,
@@ -219,7 +223,8 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         head: branch,
         base: DESTINATION_BRANCH,
       });
-      return update_pr;
+      console.log("update pr", updatepr?.data);
+      return updatepr;
     }
   } catch (error) {
     console.log(error.message);
