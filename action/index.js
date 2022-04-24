@@ -4473,7 +4473,7 @@ const run = async () => {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: ":sparkles:  New post from engineering blog that requires review",
+                    text: ":sparkles:  New post for manual review on engineering blog",
                     emoji: true,
                   },
                 },
