@@ -23,6 +23,7 @@ const run = async () => {
         state: "opened",
       }
     );
+    console.log(pulls);
     if (pulls?.data?.length > 0) {
       pulls?.data.forEach(async (pull) => {
         let pull_number = pull?.number;
