@@ -151,7 +151,6 @@ const run = async () => {
         }
       });
     } else {
-      console.log("There are no pull requests to review");
       let options = {
         blocks: [
           {
