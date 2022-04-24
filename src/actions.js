@@ -14,6 +14,7 @@ const { context = {} } = github;
 
 const run = async () => {
   try {
+    console.log("target branch", TARGET_BRANCH);
     const pulls = await octokit.request(
       `GET /repos/${context.payload?.repository?.full_name}/pulls`,
       {
@@ -23,6 +24,7 @@ const run = async () => {
         state: "opened",
       }
     );
+    console.log("pulls,", pulls?.data);
     if (pulls?.data?.length > 0) {
       pulls?.data.forEach(async (pull) => {
         let pull_number = pull?.number;
@@ -183,7 +185,7 @@ const run = async () => {
       return;
     }
   } catch (error) {
-    console.log(error.message);
+    console.log("error,", error.message);
   }
 };
 
