@@ -103,7 +103,7 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}>*`,
+                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.pull_number}>*`,
                   },
                 },
                 {
@@ -139,7 +139,6 @@ const run = async () => {
                 },
               ],
             };
-
             axios
               .post(SLACK_WEBHOOK_REVIEW_URL, JSON.stringify(options))
               .then((response) => {
@@ -193,7 +192,6 @@ const run = async () => {
 run();
 
 const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
-  // attempt creating pr
   try {
     const existing_pr = await octokit.rest.pulls.list({
       owner,
@@ -202,7 +200,30 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       head: branch,
       base: DESTINATION_BRANCH,
     });
-    console.log(existing_pr?.data);
+    if (existing_pr?.data?.length === 0) {
+      // create new pr
+      const createpr = await octokit.request(`POST /repos/${full_name}/pulls`, {
+        owner,
+        repo,
+        title: branch,
+        body,
+        head: branch,
+        base: DESTINATION_BRANCH,
+      });
+      return createpr;
+    } else {
+      // update existing pr
+      const update_pr = await octokit.rest.pulls.update({
+        pull_number: existing_pr?.data[0].number,
+        owner,
+        repo,
+        title: branch,
+        body,
+        head: branch,
+        base: DESTINATION_BRANCH,
+      });
+      return update_pr;
+    }
   } catch (error) {
     console.log(error.message);
   }
