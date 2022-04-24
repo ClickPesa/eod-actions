@@ -23,7 +23,6 @@ const run = async () => {
         state: "opened",
       }
     );
-    console.log(pulls);
     if (pulls?.data?.length > 0) {
       pulls?.data.forEach(async (pull) => {
         let pull_number = pull?.number;
@@ -151,6 +150,7 @@ const run = async () => {
         }
       });
     } else {
+      console.log("There are no pull requests to review");
       let options = {
         blocks: [
           {
@@ -198,6 +198,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       head: branch,
       base: DESTINATION_BRANCH,
     });
+    console.log("existing pr", existing_pr?.data);
     if (existing_pr?.data?.length === 0) {
       // create new pr
       const createpr = await octokit.request(`POST /repos/${full_name}/pulls`, {
