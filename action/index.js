@@ -12745,7 +12745,7 @@ const TECH_LEAD_ID = core.getInput("TECH_LEAD_ID");
 const REPO_OWNER = core.getInput("REPO_OWNER");
 const REPO_NAME = core.getInput("REPO_NAME");
 const octokit = github.getOctokit(GITHUB_TOKEN);
-// const { context = {} } = github;
+const { context = {} } = github;
 
 const run = async () => {
   try {
@@ -12765,6 +12765,7 @@ const run = async () => {
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
+        console.log(`pull request`, pull);
         const pull_commits = await octokit.request(
           `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
@@ -12786,6 +12787,7 @@ const run = async () => {
                 ? "> " + e.commit.message
                 : commits + "\n\n" + "> " + e.commit.message;
         });
+        console.log(commits);
         // merge pr
         const mergepr = await octokit.request(
           `PUT /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/merge`,
@@ -12795,6 +12797,7 @@ const run = async () => {
             pull_number,
           }
         );
+        console.log("mergepr", mergepr);
         if (mergepr?.data) {
           // create/update PR to master
           const createpr = await createorupdatepr({
@@ -12804,6 +12807,7 @@ const run = async () => {
             repo: REPO_NAME,
             full_name: `${REPO_OWNER}/${REPO_NAME}`,
           });
+          console.log("createpr", createpr);
           if (createpr?.data) {
             let newDate = new Date();
             newDate.setTime(new Date(createdAt).getTime());
@@ -12815,7 +12819,7 @@ const run = async () => {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: ":sparkles:  New post from engineering blog that requires review",
+                    text: ":sparkles:  New post for manual review on engineering blog",
                     emoji: true,
                   },
                 },
