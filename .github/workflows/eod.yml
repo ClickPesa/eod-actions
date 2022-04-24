@@ -25,3 +25,5 @@ jobs:
           DESTINATION_BRANCH: master
           TEAM_LEAD_ID: ${{secrets.TEAM_LEAD_ID}}
           TECH_LEAD_ID: ${{secrets.TECH_LEAD_ID}}
+          REPO_OWNER: bmsteven
+          REPO_NAME: eod-actions
