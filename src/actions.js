@@ -198,7 +198,6 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       head: branch,
       base: DESTINATION_BRANCH,
     });
-    console.log("existing pr", existing_pr?.data);
     if (existing_pr?.data?.length === 0) {
       // create new pr
       const createpr = await octokit.request(`POST /repos/${full_name}/pulls`, {
