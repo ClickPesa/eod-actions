@@ -1,7 +1,7 @@
-name: eod
+name: end of day
 
 on:
-   schedule: [{cron: '10-30 18 * * 0-6'}]
+   schedule: [{cron: '29 18 * * 0-6'}]
 
 jobs:
   build:
