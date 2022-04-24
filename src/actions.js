@@ -12,7 +12,7 @@ const TECH_LEAD_ID = core.getInput("TECH_LEAD_ID");
 const REPO_OWNER = core.getInput("REPO_OWNER");
 const REPO_NAME = core.getInput("REPO_NAME");
 const octokit = github.getOctokit(GITHUB_TOKEN);
-const { context = {} } = github;
+// const { context = {} } = github;
 
 const run = async () => {
   try {
