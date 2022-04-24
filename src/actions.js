@@ -11,7 +11,6 @@ const octokit = github.getOctokit(GITHUB_TOKEN);
 const { context = {} } = github;
 
 const run = async () => {
-  console.log(context);
   try {
     const pulls = await octokit.request(
       `GET /repos/${context.payload?.repository?.full_name}/pulls`,
@@ -19,9 +18,173 @@ const run = async () => {
         owner: context.payload?.repository?.owner?.login,
         repo: context.payload?.repository?.name,
         base: TARGET_BRANCH,
+        state: "opened",
       }
     );
-    console.log(pulls.data);
+    if (pulls?.data?.length > 0) {
+      pulls?.data.forEach(async (pull) => {
+        let pull_number = pull?.number;
+        let description = pull.body;
+        let createdAt = pull.updated_at;
+        let branch = pull.head.ref;
+        const pull_commits = await octokit.request(
+          `GET /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/commits`,
+          {
+            owner: context.payload?.repository?.owner?.login,
+            repo: context.payload?.repository?.name,
+            pull_number,
+          }
+        );
+        let commits = "";
+        pull_commits?.data?.commits?.forEach((e, i) => {
+          if (
+            !e?.commit?.message.includes("Merge") &&
+            !e?.commit?.message.includes("Merged") &&
+            !e?.commit?.message.includes("skip") &&
+            !e?.commit?.message.includes("Skip")
+          )
+            commits =
+              i === 0
+                ? "> " + e.commit.message
+                : commits + "\n\n" + "> " + e.commit.message;
+        });
+        console.log(commits);
+        // merge pr
+        const mergepr = await octokit.request(
+          `PUT /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/merge`,
+          {
+            owner: context.payload?.repository?.owner?.login,
+            repo: context.payload?.repository?.name,
+            pull_number,
+          }
+        );
+        if (mergepr?.data) {
+          // create/update PR to master
+          const createpr = await createorupdatepr({
+            branch,
+            body: description,
+            owner: context.payload?.repository?.owner?.login,
+            repo: context.payload?.repository?.name,
+            full_name: context.payload?.repository?.full_name,
+          });
+          if (createpr?.data) {
+            // send slack review Notification
+            // create pr to master
+
+            let newDate = new Date();
+            newDate.setTime(new Date(createdAt).getTime());
+            let dateString = newDate.toDateString();
+            let timeString = newDate.toLocaleTimeString();
+            const options = {
+              blocks: [
+                {
+                  type: "header",
+                  text: {
+                    type: "plain_text",
+                    text: ":sparkles:  New notification sent from github actions",
+                    emoji: true,
+                  },
+                },
+                {
+                  type: "context",
+                  elements: [
+                    {
+                      text: `<@null> <@null> <@null>  |  *engineering blog*  |  *${
+                        dateString + " " + timeString
+                      }}* `,
+                      type: "mrkdwn",
+                    },
+                  ],
+                },
+                {
+                  type: "divider",
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}>*`,
+                  },
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: commits,
+                  },
+                },
+                {
+                  type: "actions",
+                  elements: [
+                    {
+                      type: "button",
+                      text: {
+                        type: "plain_text",
+                        emoji: true,
+                        text: "Review Changes",
+                      },
+                      style: "primary",
+                      url: "https://staging--getpaidafrica.netlify.app/",
+                    },
+                    {
+                      type: "button",
+                      text: {
+                        type: "plain_text",
+                        emoji: true,
+                        text: "View Pull Request",
+                      },
+                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}`,
+                    },
+                  ],
+                },
+              ],
+            };
+
+            axios
+              .post(SLACK_WEBHOOK_REVIEW_URL, JSON.stringify(options))
+              .then((response) => {
+                console.log("SUCCEEDED: Sent slack webhook", response.data);
+              })
+              .catch((error) => {
+                console.log("FAILED: Send slack webhook", error);
+              });
+            return;
+          }
+        }
+      });
+    } else {
+      console.log("There are no pull requests to review");
+      let options = {
+        blocks: [
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: "New notification sent from github actions",
+              emoji: true,
+            },
+          },
+          {
+            type: "context",
+            elements: [
+              {
+                type: "mrkdwn",
+                text: `❌ There are no pull requests to review`,
+              },
+            ],
+          },
+        ],
+      };
+      axios
+        .post(SLACK_WEBHOOK_URL, JSON.stringify(options))
+        .then((response) => {
+          console.log("SUCCEEDED: Sent slack webhook", response.data);
+        })
+        .catch((error) => {
+          console.log("FAILED: Send slack webhook", error);
+        });
+      return;
+    }
   } catch (error) {
     console.log(error.message);
   }
@@ -29,89 +192,25 @@ const run = async () => {
 
 run();
 
-// gulp.task("createnotification", async () => {
-//   const options = {
-//     blocks: [
-//       {
-//         type: "header",
-//         text: {
-//           type: "plain_text",
-//           text: ":sparkles:  New notification sent via github actions",
-//           emoji: true,
-//         },
-//       },
-//       {
-//         type: "context",
-//         elements: [
-//           {
-//             text: `<@null> <@null> <@null>  |  *engineering blog*  |  *null}* `,
-//             type: "mrkdwn",
-//           },
-//         ],
-//       },
-//       {
-//         type: "divider",
-//       },
-//       {
-//         type: "section",
-//         text: {
-//           type: "mrkdwn",
-//           text: `*<https://github.com/clickpesa/engineering-blog/pulls>*`,
-//         },
-//       },
-//       {
-//         type: "section",
-//         text: {
-//           type: "mrkdwn",
-//           text: `sample from from github`,
-//         },
-//       },
-//       {
-//         type: "actions",
-//         elements: [
-//           {
-//             type: "button",
-//             text: {
-//               type: "plain_text",
-//               emoji: true,
-//               text: "Review Changes",
-//             },
-//             style: "primary",
-//             url: "https://staging--getpaidafrica.netlify.app//",
-//           },
-//           {
-//             type: "button",
-//             text: {
-//               type: "plain_text",
-//               emoji: true,
-//               text: "View Pull Request",
-//             },
-//             url: `https://github.com/clickpesa/engineering-blog/pulls`,
-//           },
-//         ],
-//       },
-//     ],
-//   };
-//   axios
-//     .post(`${process.argv[4]}`, JSON.stringify(options))
-//     .then((response) => {
-//       console.log("SUCCEEDED: Sent slack webhook", response.data);
-//       resolve(response.data);
-//     })
-//     .catch((error) => {
-//       console.log("FAILED: Send slack webhook", error);
-//       reject(new Error("FAILED: Send slack webhook"));
-//     });
-// });
+const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
+  // attempt creating pr
+  try {
+    const existing_pr = await octokit.rest.pulls.list({
+      owner,
+      repo,
+      state: "open",
+      head: branch,
+      base: DESTINATION_BRANCH,
+    });
+    console.log(existing_pr?.data);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
 // gulp.task("getpulls", async () => {
 //   try {
 //     const octokit = new Octokit({ auth: process.argv[4] });
-//     const pulls = await octokit.request("GET /repos/bmsteven/demo/pulls", {
-//       owner: "bmsteven",
-//       repo: "demo",
-//       base: "staging",
-//     });
 //     console.log("pulls", pulls?.data);
 
 //     const pull = await octokit.request("GET /repos/bmsteven/demo/pulls/18", {
@@ -121,25 +220,7 @@ run();
 //     });
 //     console.log("pull", pull?.data);
 //     // update pull request
-//     // await octokit.request("PATCH /repos/{owner}/{repo}/pulls/{pull_number}", {
-//     //   owner: "OWNER",
-//     //   repo: "REPO",
-//     //   pull_number: "PULL_NUMBER",
-//     //   title: "new title",
-//     //   body: "updated body",
-//     //   state: "open",
-//     //   base: "master",
-//     // });
 //     // get pull request commits
-//     const commits = await octokit.request(
-//       "GET /repos/bmsteven/demo/pulls/16/commits",
-//       {
-//         owner: "bmsteven",
-//         repo: "demo",
-//         pull_number: "18",
-//       }
-//     );
-//     console.log("commits", commits?.data);
 //     // check if pull request was merged
 //     const checkPulls = await octokit.request(
 //       "GET /repos/bmsteven/demo/pulls/18/merge",
@@ -161,77 +242,10 @@ run();
 //     );
 //     console.log("mergepr", mergepr?.data);
 //     // create new pull request
-//     const createPr = await octokit.request("POST /repos/bmsteven/demo/pulls", {
-//       owner: "bmsteven",
-//       repo: "demo",
-//       title: "Amazing new feature",
-//       body: "Please pull these awesome changes in!",
-//       head: "staging",
-//       base: "master",
-//     });
-//     console.log("createPr", createPr?.data);
 //   } catch (error) {
 //     console.log(error?.message);
 //   }
 // });
-
-// // scheduled
-// // on:
-// //   schedule:
-// //     - cron: '30 5 * * 1,3'
-// //     - cron: '30 5 * * 2,4'
-
-// // jobs:
-// //   test_schedule:
-// //     runs-on: ubuntu-latest
-// //     steps:
-// //       - name: Not on Monday or Wednesday
-// //         if: github.event.schedule != '30 5 * * 1,3'
-// //         run: echo "This step will be skipped on Monday and Wednesday"
-// //       - name: Every time
-// //         run: echo "This step will always run"
-
-// // create pr action
-// // name: Pull Request Action
-// // on:
-// //   push:
-// //     branches:
-// //       - feature/*
-// //       - test/*
-// //       - test
-
-// // jobs:
-// //   create-pull-request:
-// //     runs-on: ubuntu-latest
-// //     steps:
-// //       - name: Check out repository code
-// //         uses: actions/checkout@v2
-// //       - name: pull-request
-// //         uses: repo-sync/pull-request@v2
-// //         with:
-// //           destination_branch: "develop"
-// //           github_token: ${{ secrets.GITHUB_TOKEN }}
-// //           pr_label: "feature, automated pr"
-// //           pr_title: "[Example] Simple demo"
-
-// // name: test
-
-// // on:
-// //   pull_request:
-// //     branches: [master, develop, staging]
-
-// // jobs:
-// //   build:
-// //     runs-on: ubuntu-latest
-
-// //     steps:
-// //       - name: Check Out Repo
-// //         uses: actions/checkout@v2
-
-// //       # - name: 🔀 Merge Pull Request
-// //       #   uses: BaharaJr/merge-pr@0.0.1
-// //       #   with:
-// //       #     GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
 // // name: NodeJS with Gulp
 
