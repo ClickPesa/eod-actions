@@ -4399,7 +4399,6 @@ const TECH_LEAD_ID = core.getInput("TECH_LEAD_ID");
 const REPO_OWNER = core.getInput("REPO_OWNER");
 const REPO_NAME = core.getInput("REPO_NAME");
 const octokit = github.getOctokit(GITHUB_TOKEN);
-const { context = {} } = github;
 
 const run = async () => {
   try {
@@ -4412,7 +4411,7 @@ const run = async () => {
         state: "opened",
       }
     );
-    console.log("pulls,", pulls?.data);
+    console.log("pulls,", pulls?.data?.length);
     if (pulls?.data?.length > 0) {
       pulls?.data.forEach(async (pull) => {
         let pull_number = pull?.number;
