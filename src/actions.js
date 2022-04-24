@@ -36,7 +36,6 @@ const run = async () => {
           }
         );
         let commits = "";
-        console.log("pull commits", pull_commits?.data);
         pull_commits?.data?.forEach((e, i) => {
           if (
             !e?.commit?.message.includes("Merge") &&
@@ -49,7 +48,6 @@ const run = async () => {
                 ? "> " + e.commit.message
                 : commits + "\n\n" + "> " + e.commit.message;
         });
-        console.log("commits", commits);
         // merge pr
         const mergepr = await octokit.request(
           `PUT /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/merge`,
@@ -89,7 +87,7 @@ const run = async () => {
                     {
                       text: `<@null> <@null> <@null>  |  *engineering blog*  |  *${
                         dateString + " " + timeString
-                      }}* `,
+                      }* `,
                       type: "mrkdwn",
                     },
                   ],
@@ -101,7 +99,7 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number}>*`,
+                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
                   },
                 },
                 {
@@ -131,7 +129,7 @@ const run = async () => {
                         emoji: true,
                         text: "View Pull Request",
                       },
-                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${pull_number}`,
+                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number}`,
                     },
                   ],
                 },
@@ -209,11 +207,9 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         head: branch,
         base: DESTINATION_BRANCH,
       });
-      console.log("create pr", createpr?.data);
       return createpr;
     } else {
       // update existing pr
-      console.log("there");
       const updatepr = await octokit.rest.pulls.update({
         pull_number: existing_pr?.data[0].number,
         owner,
@@ -223,11 +219,39 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         head: branch,
         base: DESTINATION_BRANCH,
       });
-      console.log("update pr", updatepr?.data);
       return updatepr;
     }
   } catch (error) {
     console.log(error.message);
+    let options = {
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: "New notification sent from github actions",
+            emoji: true,
+          },
+        },
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: `❌ failed to create pull request to master due to - ${error?.message}`,
+            },
+          ],
+        },
+      ],
+    };
+    axios
+      .post(SLACK_WEBHOOK_URL, JSON.stringify(options))
+      .then((response) => {
+        console.log("SUCCEEDED: Sent slack webhook", response.data);
+      })
+      .catch((error) => {
+        console.log("FAILED: Send slack webhook", error);
+      });
   }
 };
 
