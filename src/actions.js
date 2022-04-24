@@ -68,8 +68,6 @@ const run = async () => {
             full_name: context.payload?.repository?.full_name,
           });
           if (createpr?.data) {
-            console.log(createpr?.data);
-
             let newDate = new Date();
             newDate.setTime(new Date(createdAt).getTime());
             let dateString = newDate.toDateString();
