@@ -12762,9 +12762,7 @@ const run = async () => {
     );
     pulls = pulls?.data.reverse();
     if (pulls?.length > 0) {
-      // for (let i = 0; i < pulls?.length; i++) {
       pulls?.forEach(async (pull, i) => {
-        // const pull = pulls[i];
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
