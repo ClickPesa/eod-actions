@@ -1,4 +1,4 @@
-name: on pr to default branch
+name: on merging to default branch
 
 on:
    push:
@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: eod actions
+      - name: bump version actions
         uses: bmsteven/bump-version@1.0.3
         with: 
           GITHUB_TOKEN: ${{secrets.TOKEN}}
