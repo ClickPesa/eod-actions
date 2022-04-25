@@ -26,7 +26,7 @@ const run = async () => {
       }
     );
     pulls = pulls?.data.reverse();
-    console.log("pulls,", pulls?.length, pulls);
+    console.log("pulls,", pulls?.length);
     if (pulls?.length > 0) {
       // for (let i = 0; i < pulls?.length; i++) {
       pulls?.forEach(async (pull) => {
