@@ -4415,8 +4415,9 @@ const run = async () => {
     pulls = pulls?.data.reverse();
     console.log("pulls,", pulls?.length, pulls);
     if (pulls?.length > 0) {
-      for (let i = 0; i < pulls?.length; i++) {
-        const pull = pulls[i];
+      // for (let i = 0; i < pulls?.length; i++) {
+      pulls?.forEach(async (pull) => {
+        // const pull = pulls[i];
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
@@ -4542,7 +4543,7 @@ const run = async () => {
             return;
           }
         }
-      }
+      });
     } else {
       console.log("There are no pull requests to review");
       let options = {
@@ -4590,7 +4591,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       repo,
       state: "open",
       head: owner + ":" + branch,
-      base: DESTINATION_BRANCH,
+      base: "master",
     });
     if (existing_pr?.data?.length === 0) {
       // create new pr
@@ -4600,7 +4601,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         title: branch,
         body,
         head: branch,
-        base: DESTINATION_BRANCH,
+        base: "master",
       });
       return createpr;
     } else {
@@ -4612,7 +4613,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         title: branch,
         body,
         head: branch,
-        base: DESTINATION_BRANCH,
+        base: "master",
       });
       return updatepr;
     }
