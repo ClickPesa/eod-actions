@@ -4411,11 +4411,10 @@ const run = async () => {
         state: "opened",
       }
     );
-    console.log("pulls,", pulls?.data?.length);
+    console.log("pulls,", pulls?.data?.length, pulls);
     if (pulls?.data?.length > 0) {
       for (let i = 0; i < pulls?.data.length; i++) {
-        const pull = pulls?.data[index];
-        // pulls?.data.forEach(async (pull) => {
+        const pull = pulls?.data[i];
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;

@@ -24,7 +24,7 @@ const run = async () => {
         state: "opened",
       }
     );
-    console.log("pulls,", pulls?.data?.length);
+    console.log("pulls,", pulls?.data?.length, pulls);
     if (pulls?.data?.length > 0) {
       for (let i = 0; i < pulls?.data.length; i++) {
         const pull = pulls?.data[i];
