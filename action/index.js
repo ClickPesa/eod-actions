@@ -4421,7 +4421,7 @@ const run = async () => {
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
-        // console.log(`pull`, pull);
+        console.log(`pull`, pull?.number);
         const pull_commits = await octokit.request(
           `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
@@ -4495,14 +4495,14 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
+                    text: `*<https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number} | ${branch}>*`,
                   },
                 },
                 {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `${commits}`,
+                    text: `${commits ?? "No commits to display"}`,
                   },
                 },
                 {
