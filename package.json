@@ -6,14 +6,13 @@
   "scripts": {
     "build": "rm -rf action && ncc build src/actions.js -o action",
     "start": "babel-node src/actions.js",
-    "deploy": "cd src && zip -r -D test.zip .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "cd src && zip -r -D test.zip ."
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bmsteven/eod-actions.git"
   },
-  "author": "",
+  "author": "Benedict Steven",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bmsteven/eod-actions/issues"
