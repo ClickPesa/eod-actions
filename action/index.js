@@ -12764,7 +12764,7 @@ const run = async () => {
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
-        console.log(`pull request`, pull);
+        console.log(`pull`, pull);
         const pull_commits = await octokit.request(
           `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
