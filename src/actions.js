@@ -27,7 +27,7 @@ const run = async () => {
     console.log("pulls,", pulls?.data?.length);
     if (pulls?.data?.length > 0) {
       for (let i = 0; i < pulls?.data.length; i++) {
-        const pull = pulls?.data[index];
+        const pull = pulls?.data[i];
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
