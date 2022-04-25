@@ -12761,7 +12761,6 @@ const run = async () => {
       }
     );
     pulls = pulls?.data.reverse();
-    console.log("pulls,", pulls?.length);
     if (pulls?.length > 0) {
       // for (let i = 0; i < pulls?.length; i++) {
       pulls?.forEach(async (pull, i) => {
@@ -12770,7 +12769,6 @@ const run = async () => {
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
-        console.log(`pull`, pull?.number);
         const pull_commits = await octokit.request(
           `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
@@ -12812,7 +12810,6 @@ const run = async () => {
             repo: REPO_NAME,
             full_name: `${REPO_OWNER}/${REPO_NAME}`,
           });
-          console.log("createpr", createpr);
           if (createpr?.data) {
             let newDate = new Date();
             newDate.setTime(new Date(createdAt).getTime());
@@ -12895,7 +12892,6 @@ const run = async () => {
         }
       });
     } else {
-      console.log("There are no pull requests to review");
       let options = {
         blocks: [
           {
@@ -12968,7 +12964,6 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       return updatepr;
     }
   } catch (error) {
-    console.log(error.message);
     let options = {
       blocks: [
         {
