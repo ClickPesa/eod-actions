@@ -9,33 +9,35 @@ const DESTINATION_BRANCH = core.getInput("DESTINATION_BRANCH");
 const SLACK_WEBHOOK_REVIEW_URL = core.getInput("SLACK_WEBHOOK_REVIEW_URL");
 const TEAM_LEAD_ID = core.getInput("TEAM_LEAD_ID");
 const TECH_LEAD_ID = core.getInput("TECH_LEAD_ID");
+const REPO_OWNER = core.getInput("REPO_OWNER");
+const REPO_NAME = core.getInput("REPO_NAME");
 const octokit = github.getOctokit(GITHUB_TOKEN);
-const { context = {} } = github;
 
 const run = async () => {
   try {
-    console.log(TARGET_BRANCH);
     const pulls = await octokit.request(
-      `GET /repos/${context.payload?.repository?.full_name}/pulls`,
+      `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls`,
       {
-        owner: context.payload?.repository?.owner?.login,
-        repo: context.payload?.repository?.name,
+        owner: REPO_OWNER,
+        repo: REPO_NAME,
         base: TARGET_BRANCH,
         state: "opened",
       }
     );
-    console.log("pulls,", pulls?.data);
+    console.log("pulls,", pulls?.data?.length, pulls);
     if (pulls?.data?.length > 0) {
-      pulls?.data.forEach(async (pull) => {
+      for (let i = 0; i < pulls?.data.length; i++) {
+        const pull = pulls?.data[i];
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
+        console.log(`pull`, pull);
         const pull_commits = await octokit.request(
-          `GET /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/commits`,
+          `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
-            owner: context.payload?.repository?.owner?.login,
-            repo: context.payload?.repository?.name,
+            owner: REPO_OWNER,
+            repo: REPO_NAME,
             pull_number,
           }
         );
@@ -52,24 +54,27 @@ const run = async () => {
                 ? "> " + e.commit.message
                 : commits + "\n\n" + "> " + e.commit.message;
         });
+        console.log(commits);
         // merge pr
         const mergepr = await octokit.request(
-          `PUT /repos/${context.payload?.repository?.full_name}/pulls/${pull_number}/merge`,
+          `PUT /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/merge`,
           {
-            owner: context.payload?.repository?.owner?.login,
-            repo: context.payload?.repository?.name,
+            owner: REPO_OWNER,
+            repo: REPO_NAME,
             pull_number,
           }
         );
+        console.log("mergepr", mergepr);
         if (mergepr?.data) {
           // create/update PR to master
           const createpr = await createorupdatepr({
             branch,
             body: description,
-            owner: context.payload?.repository?.owner?.login,
-            repo: context.payload?.repository?.name,
-            full_name: context.payload?.repository?.full_name,
+            owner: REPO_OWNER,
+            repo: REPO_NAME,
+            full_name: `${REPO_OWNER}/${REPO_NAME}`,
           });
+          console.log("createpr", createpr);
           if (createpr?.data) {
             let newDate = new Date();
             newDate.setTime(new Date(createdAt).getTime());
@@ -81,7 +86,7 @@ const run = async () => {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: ":sparkles:  New post from engineering blog that requires review",
+                    text: ":sparkles:  New post for manual review on engineering blog",
                     emoji: true,
                   },
                 },
@@ -103,7 +108,7 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
+                    text: `*<https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
                   },
                 },
                 {
@@ -133,7 +138,7 @@ const run = async () => {
                         emoji: true,
                         text: "View Pull Request",
                       },
-                      url: `https://github.com/${context.payload?.repository?.full_name}/pulls/${createpr?.data?.number}`,
+                      url: `https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number}`,
                     },
                   ],
                 },
@@ -150,7 +155,7 @@ const run = async () => {
             return;
           }
         }
-      });
+      }
     } else {
       console.log("There are no pull requests to review");
       let options = {
@@ -197,7 +202,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       owner,
       repo,
       state: "open",
-      head: branch,
+      head: owner + ":" + branch,
       base: DESTINATION_BRANCH,
     });
     if (existing_pr?.data?.length === 0) {

@@ -2,13 +2,13 @@ name: end of day
 
 on:
    schedule:
-    - cron: '0,2,18,19,20,21,22,23,24,25,26,27,28,29,30,55,56,57,58 18,19,20,21 1,2,3,4,15,24,25,26,27,28,30 * 0-6'
+    - cron: '*/3 * * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      # - uses: actions/checkout@v2
       - name: Build
         run: npm install
 
@@ -25,3 +25,5 @@ jobs:
           DESTINATION_BRANCH: master
           TEAM_LEAD_ID: ${{secrets.TEAM_LEAD_ID}}
           TECH_LEAD_ID: ${{secrets.TECH_LEAD_ID}}
+          REPO_OWNER: bmsteven
+          REPO_NAME: eod-actions
