@@ -4399,7 +4399,6 @@ const TECH_LEAD_ID = core.getInput("TECH_LEAD_ID");
 const REPO_OWNER = core.getInput("REPO_OWNER");
 const REPO_NAME = core.getInput("REPO_NAME");
 const octokit = github.getOctokit(GITHUB_TOKEN);
-const { context = {} } = github;
 
 const run = async () => {
   try {
@@ -4412,14 +4411,16 @@ const run = async () => {
         state: "opened",
       }
     );
-    console.log("pulls,", pulls?.data);
+    console.log("pulls,", pulls?.data?.length);
     if (pulls?.data?.length > 0) {
-      pulls?.data.forEach(async (pull) => {
+      for (let i = 0; i < pulls?.data.length; i++) {
+        const pull = pulls?.data[index];
+        // pulls?.data.forEach(async (pull) => {
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
-        console.log(`pull request`, pull);
+        console.log(`pull`, pull);
         const pull_commits = await octokit.request(
           `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
@@ -4542,7 +4543,7 @@ const run = async () => {
             return;
           }
         }
-      });
+      }
     } else {
       console.log("There are no pull requests to review");
       let options = {
