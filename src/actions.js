@@ -13,6 +13,8 @@ const REPO_OWNER = core.getInput("REPO_OWNER");
 const REPO_NAME = core.getInput("REPO_NAME");
 const octokit = github.getOctokit(GITHUB_TOKEN);
 
+const delay = async (ms) => new Promise((res) => setTimeout(res, ms));
+
 const run = async () => {
   try {
     let pulls;
@@ -29,7 +31,7 @@ const run = async () => {
     console.log("pulls,", pulls?.length);
     if (pulls?.length > 0) {
       // for (let i = 0; i < pulls?.length; i++) {
-      pulls?.forEach(async (pull) => {
+      pulls?.forEach(async (pull, i) => {
         // const pull = pulls[i];
         let pull_number = pull?.number;
         let description = pull.body;
@@ -57,6 +59,8 @@ const run = async () => {
                 ? "> " + e.commit.message
                 : commits + "\n\n" + "> " + e.commit.message;
         });
+        // add wait second or two
+        await delay(5000 * i);
         // merge pr
         const mergepr = await octokit.request(
           `PUT /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/merge`,
@@ -204,7 +208,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       repo,
       state: "open",
       head: owner + ":" + branch,
-      base: "master",
+      base: DESTINATION_BRANCH,
     });
     if (existing_pr?.data?.length === 0) {
       // create new pr
@@ -214,7 +218,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         title: branch,
         body,
         head: branch,
-        base: "master",
+        base: DESTINATION_BRANCH,
       });
       return createpr;
     } else {
@@ -226,7 +230,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         title: branch,
         body,
         head: branch,
-        base: "master",
+        base: DESTINATION_BRANCH,
       });
       return updatepr;
     }
