@@ -2,7 +2,7 @@ name: end of day
 
 on:
    schedule:
-    - cron: '*/3 * * * *'
+    - cron: '*/15 18 * * 1-5'
    workflow_dispatch:
 
 jobs:
