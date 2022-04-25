@@ -26,11 +26,11 @@ jobs:
         run: npm run build
 
       - name: eod actions
-        uses: bmsteven/bump-version@1.0.0
+        uses: bmsteven/bump-version@1.0.1
         with: 
           GITHUB_TOKEN: ${{secrets.TOKEN}}
           SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
-          TARGET_BRANCH: main
+          TARGET_BRANCH: master
           DESTINATION_BRANCH: develop
           APP_NAME: Engineering-blog
 
