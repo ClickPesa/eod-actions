@@ -31,7 +31,7 @@ const run = async () => {
     console.log("pulls,", pulls?.length);
     if (pulls?.length > 0) {
       // for (let i = 0; i < pulls?.length; i++) {
-      pulls?.forEach(async (pull) => {
+      pulls?.forEach(async (pull, i) => {
         // const pull = pulls[i];
         let pull_number = pull?.number;
         let description = pull.body;
@@ -60,7 +60,7 @@ const run = async () => {
                 : commits + "\n\n" + "> " + e.commit.message;
         });
         // add wait second or two
-        await delay(5000);
+        await delay(5000 * i);
         // merge pr
         const mergepr = await octokit.request(
           `PUT /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/merge`,
