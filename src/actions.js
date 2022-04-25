@@ -26,7 +26,9 @@ const run = async () => {
     );
     console.log("pulls,", pulls?.data?.length);
     if (pulls?.data?.length > 0) {
-      pulls?.data.forEach(async (pull) => {
+      for (let i = 0; i < pulls?.data.length; i++) {
+        const pull = pulls?.data[index];
+        // pulls?.data.forEach(async (pull) => {
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
@@ -154,7 +156,7 @@ const run = async () => {
             return;
           }
         }
-      });
+      }
     } else {
       console.log("There are no pull requests to review");
       let options = {
