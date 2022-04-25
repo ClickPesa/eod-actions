@@ -15,7 +15,8 @@ const octokit = github.getOctokit(GITHUB_TOKEN);
 
 const run = async () => {
   try {
-    const pulls = await octokit.request(
+    let pulls;
+    pulls = await octokit.request(
       `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls`,
       {
         owner: REPO_OWNER,
@@ -24,15 +25,17 @@ const run = async () => {
         state: "opened",
       }
     );
-    console.log("pulls,", pulls?.data?.length);
-    if (pulls?.data?.length > 0) {
-      for (let i = 0; i < pulls?.data.length; i++) {
-        const pull = pulls?.data[i];
+    pulls = pulls?.data.reverse();
+    console.log("pulls,", pulls?.length);
+    if (pulls?.length > 0) {
+      // for (let i = 0; i < pulls?.length; i++) {
+      pulls?.forEach(async (pull) => {
+        // const pull = pulls[i];
         let pull_number = pull?.number;
         let description = pull.body;
         let createdAt = pull.updated_at;
         let branch = pull.head.ref;
-        console.log(`pull`, pull);
+        console.log(`pull`, pull?.number);
         const pull_commits = await octokit.request(
           `GET /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/commits`,
           {
@@ -54,7 +57,6 @@ const run = async () => {
                 ? "> " + e.commit.message
                 : commits + "\n\n" + "> " + e.commit.message;
         });
-        console.log(commits);
         // merge pr
         const mergepr = await octokit.request(
           `PUT /repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pull_number}/merge`,
@@ -64,7 +66,6 @@ const run = async () => {
             pull_number,
           }
         );
-        console.log("mergepr", mergepr);
         if (mergepr?.data) {
           // create/update PR to master
           const createpr = await createorupdatepr({
@@ -108,14 +109,14 @@ const run = async () => {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `*<https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number} | Engineering-blog>*`,
+                    text: `*<https://github.com/${REPO_OWNER}/${REPO_NAME}/pulls/${createpr?.data?.number} | ${branch}>*`,
                   },
                 },
                 {
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `${commits}`,
+                    text: `${commits ?? "No commits to display"}`,
                   },
                 },
                 {
@@ -155,7 +156,7 @@ const run = async () => {
             return;
           }
         }
-      }
+      });
     } else {
       console.log("There are no pull requests to review");
       let options = {
@@ -203,7 +204,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
       repo,
       state: "open",
       head: owner + ":" + branch,
-      base: DESTINATION_BRANCH,
+      base: "master",
     });
     if (existing_pr?.data?.length === 0) {
       // create new pr
@@ -213,7 +214,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         title: branch,
         body,
         head: branch,
-        base: DESTINATION_BRANCH,
+        base: "master",
       });
       return createpr;
     } else {
@@ -225,7 +226,7 @@ const createorupdatepr = async ({ branch, owner, repo, body, full_name }) => {
         title: branch,
         body,
         head: branch,
-        base: DESTINATION_BRANCH,
+        base: "master",
       });
       return updatepr;
     }
